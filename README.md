@@ -37,4 +37,4 @@ También es un espacio para que sigan explorando y practicando con GitHub como h
 
 **Ya están en la recta final. Confíen en lo que construyeron y anímense a seguir probando, equivocándose y aprendiendo — también en GitHub 😉**
 
-**##LOS QUEREMOS <3**
+**LOS QUEREMOS <3**
