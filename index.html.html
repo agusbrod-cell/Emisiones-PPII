@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cátedra Compartida · PPII + Tratamiento de Emisiones</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8f7f4;--bg2:#f0ede8;--bg3:#e8e4dc;--surface:#fff;--ink:#18160f;--ink2:#5a5648;--ink3:#9a9286;--border:rgba(24,22,15,.08);--border2:rgba(24,22,15,.14);--gold:#b8820a;--gold2:#d4a020;--gold-bg:#fdf8ec;--gold-bdr:rgba(184,130,10,.2);--pp:#1a6640;--pp2:#2a8a56;--pp-bg:#eef7f2;--pp-bdr:rgba(26,102,64,.18);--te:#7a3010;--te2:#a84520;--te-bg:#fdf1ec;--te-bdr:rgba(122,48,16,.18);--sh:#1a3d6e;--sh2:#2558a0;--sh-bg:#eef3fb;--sh-bdr:rgba(26,61,110,.18);--paula:#6030a0;--paula2:#8048d0;--paula-bg:#f5f0fc;--paula-bdr:rgba(96,48,160,.18);--jere:#a02828;--jere2:#cc3838;--jere-bg:#fdf0f0;--jere-bdr:rgba(160,40,40,.18);--riki:#1a5888;--riki2:#2878b8;--riki-bg:#eef4fb;--riki-bdr:rgba(26,88,136,.18);--lolo:#786018;--lolo2:#a08020;--lolo-bg:#faf6ea;--lolo-bdr:rgba(120,96,24,.18);--r:10px;--r2:16px;--r3:22px;--s0:0 1px 4px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04);--s1:0 4px 16px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.04);--s2:0 12px 40px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.04)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.topbar{height:54px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:400;box-shadow:var(--s0)}
+.brand{display:flex;align-items:center;gap:10px;cursor:pointer}
+.brand-logo{width:28px;height:28px;background:var(--ink);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.brand-name{font-size:13px;font-weight:600;color:var(--ink)}.brand-name span{color:var(--ink3);font-weight:400}
+.back-btn{display:none;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--border);color:var(--ink2);border-radius:20px;padding:5px 14px 5px 10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.back-btn:hover{background:var(--bg3)}.back-btn.show{display:flex}
+.pw{position:relative;min-height:calc(100vh - 54px)}
+.page{opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .35s cubic-bezier(.16,1,.3,1),transform .35s cubic-bezier(.16,1,.3,1);position:absolute;inset:0}
+.page.active{opacity:1;transform:translateY(0);pointer-events:all;position:relative}
+.home{min-height:calc(100vh - 54px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;background:#0f0e0c;position:relative;overflow:hidden}
+.home::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(210,190,160,.07) 0%,transparent 70%);pointer-events:none}
+.hbadge{display:inline-flex;align-items:center;gap:6px;background:rgba(210,190,160,.08);border:1px solid rgba(210,190,160,.2);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;color:#c8b89a;letter-spacing:.08em;text-transform:uppercase;margin-bottom:32px;position:relative;z-index:1}
+.hbdot{width:6px;height:6px;border-radius:50%;background:#c8b89a;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.htitle{font-family:'Instrument Serif',serif;font-size:clamp(34px,5.5vw,62px);line-height:1.06;text-align:center;color:#f0ece4;margin-bottom:14px;letter-spacing:-.02em;position:relative;z-index:1}
+.htitle em{font-style:italic;color:#c8b89a}
+.hsub{font-size:14px;color:rgba(240,236,228,.4);margin-bottom:56px;text-align:center;position:relative;z-index:1;letter-spacing:.01em}
+.hcards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:740px;width:100%;position:relative;z-index:1}
+.hcard{flex:1;min-width:300px;max-width:360px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:var(--r3);padding:32px 28px;cursor:pointer;position:relative;overflow:hidden;transition:all .3s cubic-bezier(.16,1,.3,1)}
+.hcard:hover{transform:translateY(-6px);background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.18);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.hcard-stripe{position:absolute;top:0;left:0;right:0;height:2px}
+.hcard-al .hcard-stripe{background:linear-gradient(90deg,#4a9e6e,#6dbf8a)}
+.hcard-pr .hcard-stripe{background:linear-gradient(90deg,#c8a07a,#e0c09a)}
+.hcard-icon{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:20px}
+.hcard-al .hcard-icon{background:rgba(74,158,110,.15)}
+.hcard-pr .hcard-icon{background:rgba(200,160,122,.15)}
+.hcard-title{font-family:'Instrument Serif',serif;font-size:26px;margin-bottom:6px;color:#f0ece4}
+.hcard-desc{font-size:13px;color:rgba(240,236,228,.5);line-height:1.65;margin-bottom:24px}
+.hcard-cta{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:8px 16px;border-radius:20px;transition:gap .15s}
+.hcard-al .hcard-cta{background:rgba(74,158,110,.15);color:#6dbf8a}
+.hcard-pr .hcard-cta{background:rgba(200,160,122,.15);color:#e0c09a}
+.hcard:hover .hcard-cta{gap:10px}
+.hinds{display:flex;gap:8px;margin-top:44px;flex-wrap:wrap;justify-content:center;position:relative;z-index:1}
+.itag{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:rgba(240,236,228,.4);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:5px 12px}
+.app{display:flex;height:calc(100vh - 54px)}
+.sb{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;padding:16px 0 24px;box-shadow:var(--s0)}
+.sb-sec{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);padding:16px 18px 6px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 18px;font-size:13px;font-weight:500;color:var(--ink3);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;transition:all .12s;position:relative}
+.sb-item::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;border-radius:0 2px 2px 0;background:transparent;transition:background .12s}
+.sb-item:hover{color:var(--ink2);background:var(--bg)}.sb-item.active{color:var(--ink);background:var(--bg);font-weight:600}.sb-item.active::before{background:var(--ink)}
+.sb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sb-div{height:1px;background:var(--border);margin:8px 12px}
+.al-sb{display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;transition:all .12s;position:relative}
+.al-sb::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;border-radius:0 2px 2px 0;background:transparent}
+.al-sb:hover{background:var(--bg)}.al-sb.active{background:var(--bg)}
+.al-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:1.5px solid transparent}
+.al-nm{font-size:13px;font-weight:600;color:var(--ink)}.al-in{font-size:11px;color:var(--ink3);margin-top:1px}
+.main{flex:1;overflow-y:auto;background:var(--bg)}
+.mi{padding:32px 36px;max-width:1100px}
+.view{display:none}.view.active{display:block;animation:fadeUp .3s cubic-bezier(.16,1,.3,1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.ph{margin-bottom:28px}
+.ph-ey{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.ph-t{font-family:'Instrument Serif',serif;font-size:30px;color:var(--ink);letter-spacing:-.01em}
+.ph-t em{font-style:italic;color:var(--gold)}.ph-s{font-size:13px;color:var(--ink3);margin-top:5px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:18px 20px;box-shadow:var(--s0);position:relative;overflow:hidden;transition:all .2s}
+.stat:hover{box-shadow:var(--s1);transform:translateY(-2px)}
+.stat-l{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
+.stat-v{font-family:'Instrument Serif',serif;font-size:34px;color:var(--ink);line-height:1}
+.stat-s{font-size:11px;color:var(--ink3);margin-top:4px}
+.stat-bar{position:absolute;bottom:0;left:0;height:3px;border-radius:0 2px 0 0;transition:width .8s cubic-bezier(.16,1,.3,1)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;box-shadow:var(--s0);transition:box-shadow .2s}
+.card:hover{box-shadow:var(--s1)}
+.ct{font-family:'Instrument Serif',serif;font-size:17px;color:var(--ink);margin-bottom:4px}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.alc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;box-shadow:var(--s0);transition:all .25s cubic-bezier(.16,1,.3,1)}
+.alc:hover{box-shadow:var(--s2);transform:translateY(-3px)}
+.alc-top{padding:22px 20px 18px}
+.alc-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:12px;border:2px solid transparent}
+.alc-name{font-family:'Instrument Serif',serif;font-size:21px;color:var(--ink)}
+.alc-ind{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.alc-body{padding:16px 20px;border-top:1px solid var(--border)}
+.plbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
+.pb{height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;margin:5px 0 4px}
+.pf{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.16,1,.3,1)}
+.ppt{font-size:11px;color:var(--ink3)}
+.nota{border-left:3px solid var(--gold);background:var(--gold-bg);border-radius:0 var(--r) var(--r) 0;padding:12px 14px;margin-bottom:8px}
+.nota-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.nota-e{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gold)}
+.nota-f{font-size:11px;color:var(--ink3)}.nota-b{font-size:13px;color:var(--ink2);line-height:1.6}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:18px;font-size:11px;font-weight:600;border:1px solid}
+.atabs{display:flex;gap:2px;background:var(--bg2);border-radius:22px;padding:3px;margin-bottom:24px;width:fit-content;box-shadow:inset 0 1px 3px rgba(0,0,0,.06)}
+.atab{padding:7px 18px;border-radius:19px;border:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:500;color:var(--ink3);cursor:pointer;transition:all .18s}
+.atab.active{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--s0)}
+.etr{display:grid;grid-template-columns:88px 1fr;position:relative}
+.etr::before{content:'';position:absolute;left:40px;top:30px;bottom:-10px;width:1px;background:var(--border)}
+.etr:last-child::before{display:none}
+.etl{padding:14px 14px 14px 0;text-align:right}
+.etc{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-left:auto;border:2px solid}
+.etw{font-size:10px;color:var(--ink3);margin-top:3px}
+.etr-r{border-left:1px solid var(--border);padding:14px 0 22px 20px}
+.etn{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.etd{font-size:13px;color:var(--ink3);line-height:1.6}
+.trow{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.tag{font-size:11px;padding:2px 9px;border-radius:18px;font-weight:600}
+.cc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:8px;overflow:hidden;box-shadow:var(--s0);transition:all .2s}
+.cc.open{box-shadow:var(--s1)}
+.ch{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;user-select:none}
+.cn{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.ci{flex:1}.cname{font-size:13px;font-weight:600;color:var(--ink)}.cdesc{font-size:12px;color:var(--ink3);margin-top:1px}
+.cb{display:none;border-top:1px solid var(--border);padding:14px 18px;background:var(--bg)}
+.cb.open{display:block}
+.bl{display:flex;gap:12px;margin-bottom:7px;align-items:flex-start}
+.bt{font-size:11px;font-weight:700;white-space:nowrap;padding-top:2px;min-width:64px}
+.bd2{font-size:13px;color:var(--ink2);line-height:1.5}
+.crow{display:grid;grid-template-columns:46px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.crow:last-child{border-bottom:none}
+.cn2{font-family:'Instrument Serif',serif;font-size:22px;color:var(--ink3)}
+.ctt{font-size:14px;font-weight:500;color:var(--ink)}.ctd{font-size:12px;color:var(--ink3);margin-top:1px}
+.est{font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px}
+.rc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 15px;display:flex;align-items:center;gap:12px;box-shadow:var(--s0);transition:all .15s;cursor:pointer}
+.rc:hover{box-shadow:var(--s1);transform:translateX(3px);border-color:var(--border2)}
+.ri{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:var(--bg2)}
+.rn{font-size:13px;font-weight:600;color:var(--ink)}.rm{font-size:11px;color:var(--ink3);margin-top:1px}
+.avc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:8px;box-shadow:var(--s0)}
+.avh{display:flex;justify-content:space-between;margin-bottom:5px}.avd{font-size:13px;color:var(--ink2);line-height:1.6}
+.nt{width:100%;border-collapse:collapse;font-size:13px}
+.nt th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);border-bottom:2px solid var(--border2)}
+.nt td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.nt tr:last-child td{border-bottom:none}.nt tr:hover td{background:var(--bg)}
+.nn{font-family:'Instrument Serif',serif;font-size:22px}
+.np{font-family:'Instrument Serif',serif;font-size:26px;padding:4px 12px;border-radius:var(--r)}
+.ptabs{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--border)}
+.ptab{padding:10px 20px;font-size:13px;font-weight:600;color:var(--ink3);cursor:pointer;border:none;background:none;font-family:'Plus Jakarta Sans',sans-serif;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+.ptab:hover{color:var(--ink2)}.ptab.active{color:var(--ink);border-bottom-color:var(--gold)}
+.fr{display:grid;gap:10px;margin-bottom:12px}.fr2{grid-template-columns:1fr 1fr}.fr3{grid-template-columns:1fr 1fr 1fr}.fr4{grid-template-columns:1fr 1fr 1fr 1fr}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--ink3)}
+.fi,.fsl,.fta{padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;background:var(--surface);color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s;width:100%}
+.fi:focus,.fsl:focus,.fta:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-bdr)}
+.fta{resize:vertical;min-height:76px;line-height:1.5}
+.fin{font-family:'Instrument Serif',serif;font-size:18px;text-align:center}
+.btn{padding:9px 18px;border-radius:20px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-p{background:var(--ink);color:#fff}.btn-p:hover{background:#333;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.btn-g{background:var(--bg2);color:var(--ink2);border:1px solid var(--border2)}.btn-g:hover{background:var(--bg3)}
+.btn-d{background:var(--jere-bg);color:var(--jere2);border:1px solid var(--jere-bdr)}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:16px}
+.fc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:20px;box-shadow:var(--s0)}
+.fct{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.fcd{width:8px;height:8px;border-radius:50%}
+.sh2{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.st{font-family:'Instrument Serif',serif;font-size:20px}
+.empty{text-align:center;padding:40px 20px;color:var(--ink3)}
+.eic{font-size:28px;margin-bottom:8px;opacity:.4}.etxt{font-size:13px}
+@media(max-width:680px){.sb{width:180px}.mi{padding:20px 16px}.fr2,.fr3,.fr4{grid-template-columns:1fr}.htitle{font-size:30px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand" onclick="goHome()">
+    <div class="brand-logo"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="white" stroke-width="1.5"/><path d="M4.5 7h5M7 4.5v5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="brand-name">Cátedra Compartida <span>· 7mo Año</span></div>
+  </div>
+  <button class="back-btn" id="back-btn" onclick="goHome()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Inicio</button>
+</div>
+<div class="pw">
+<div class="page active" id="page-home">
+<div class="home">
+  <div class="hbadge"><div class="hbdot"></div>2026 · En curso</div>
+  <h1 class="htitle">Proceso Productivo II<br>+ <em>Tratamiento de Emisiones</em></h1>
+  <p class="hsub">Katy &amp; Agus · 4 alumnos</p>
+  <div class="hcards">
+    <div class="hcard hcard-al" onclick="enter('alumnos')">
+      <div class="hcard-stripe"></div>
+      <div class="hcard-icon">🎓</div>
+      <div class="hcard-title">Alumnos</div>
+      <div class="hcard-desc">Paula · Jere · Riki · Lolo<br>Protocolo, recursos, devoluciones y avances por industria.</div>
+      <div class="hcard-cta">Entrar <span>→</span></div>
+    </div>
+    <div class="hcard hcard-pr" onclick="enter('profes')">
+      <div class="hcard-stripe"></div>
+      <div class="hcard-icon">📋</div>
+      <div class="hcard-title">Profes</div>
+      <div class="hcard-desc">Katy &amp; Agus<br>Protocolo, clases, cronograma, calificaciones y recursos.</div>
+      <div class="hcard-cta">Entrar <span>→</span></div>
+    </div>
+  </div>
+  <div class="hinds">
+    <div class="itag">🧵 Textil · Paula</div>
+    <div class="itag">🥩 Cárnica · Jere</div>
+    <div class="itag">📄 Papel · Riki</div>
+    <div class="itag">⛏️ Minera · Lolo</div>
+  </div>
+</div>
+</div>
+<div class="page" id="page-app">
+<div class="app">
+  <aside class="sb" id="sb-al" style="display:none">
+    <div class="sb-sec">Industrias</div>
+    <button class="al-sb active" id="asi-Paula" onclick="selAl('Paula')"><div class="al-av" style="background:var(--paula-bg);border-color:var(--paula-bdr)">🧵</div><div><div class="al-nm">Paula</div><div class="al-in">Textil</div></div></button>
+    <button class="al-sb" id="asi-Jere" onclick="selAl('Jere')"><div class="al-av" style="background:var(--jere-bg);border-color:var(--jere-bdr)">🥩</div><div><div class="al-nm">Jere</div><div class="al-in">Cárnica</div></div></button>
+    <button class="al-sb" id="asi-Riki" onclick="selAl('Riki')"><div class="al-av" style="background:var(--riki-bg);border-color:var(--riki-bdr)">📄</div><div><div class="al-nm">Riki</div><div class="al-in">Papel</div></div></button>
+    <button class="al-sb" id="asi-Lolo" onclick="selAl('Lolo')"><div class="al-av" style="background:var(--lolo-bg);border-color:var(--lolo-bdr)">⛏️</div><div><div class="al-nm">Lolo</div><div class="al-in">Minera</div></div></button>
+  </aside>
+  <aside class="sb" id="sb-pr" style="display:none">
+    <div class="sb-sec">Gestión</div>
+    <button class="sb-item active" onclick="showPV('protocolo',this)"><span class="sb-dot" style="background:var(--sh2)"></span>Protocolo</button>
+    <button class="sb-item" onclick="showPV('clases',this)"><span class="sb-dot" style="background:var(--te2)"></span>Estructura de clase</button>
+    <button class="sb-item" onclick="showPV('cronograma',this)"><span class="sb-dot" style="background:var(--gold)"></span>Cronograma</button>
+    <div class="sb-div"></div>
+    <div class="sb-sec">Alumnos</div>
+    <button class="sb-item" onclick="showPV('notas',this)"><span class="sb-dot" style="background:var(--pp2)"></span>Calificaciones</button>
+    <button class="sb-item" onclick="showPV('devoluciones',this)"><span class="sb-dot" style="background:var(--gold)"></span>Devoluciones</button>
+    <button class="sb-item" onclick="showPV('recursos-admin',this)"><span class="sb-dot" style="background:var(--paula2)"></span>Recursos</button>
+    <button class="sb-item" onclick="showPV('progreso',this)"><span class="sb-dot" style="background:var(--jere2)"></span>Progreso</button>
+  </aside>
+  <main class="main"><div class="mi">
+
+    <!-- ALUMNO -->
+    <div class="view active" id="v-alumno">
+      <div class="ph"><div class="ph-ey" id="al-ey">Industria Textil</div><h1 class="ph-t" id="al-title">Paula</h1><p class="ph-s">Katy · Agus · Cátedra Compartida 2026</p></div>
+      <div class="stats">
+        <div class="stat"><div class="stat-l">Progreso</div><div class="stat-v" id="al-sp">10%</div><div class="stat-bar" id="al-sb2" style="width:10%"></div></div>
+        <div class="stat"><div class="stat-l">Devoluciones</div><div class="stat-v" id="al-sd">0</div><div class="stat-s">recibidas</div></div>
+        <div class="stat"><div class="stat-l">Avances</div><div class="stat-v" id="al-sa">0</div><div class="stat-s">registrados</div></div>
+        <div class="stat"><div class="stat-l">Etapa actual</div><div class="stat-v" style="font-size:20px;line-height:1.3">Etapa 1</div></div>
+      </div>
+      <div class="atabs">
+        <button class="atab active" onclick="showAT('protocolo',this)">📋 Protocolo</button>
+        <button class="atab" onclick="showAT('recursos',this)">📚 Recursos</button>
+        <button class="atab" onclick="showAT('devs',this)">💬 Devoluciones</button>
+        <button class="atab" onclick="showAT('avances',this)">✏️ Mis avances</button>
+        <button class="atab" onclick="showAT('mis-notas',this)">📊 Mis notas</button>
+      </div>
+      <div id="at-protocolo" class="atc">
+        <div class="g2" style="margin-bottom:14px">
+          <div class="card" style="border-top:3px solid var(--pp)"><div style="margin-bottom:9px"><span class="pill" style="background:var(--pp-bg);color:var(--pp);border-color:var(--pp-bdr)">Carril A</span></div><div class="ct" style="font-size:14px">Clases independientes</div><p style="font-size:13px;color:var(--ink3);line-height:1.6;margin-top:6px">Ensayos de laboratorio guiados por Katy y Agus para construir habilidades y confianza.</p></div>
+          <div class="card" style="border-top:3px solid var(--sh)"><div style="margin-bottom:9px"><span class="pill" style="background:var(--sh-bg);color:var(--sh);border-color:var(--sh-bdr)">Carril B</span></div><div class="ct" style="font-size:14px">Proyecto compartido</div><p style="font-size:13px;color:var(--ink3);line-height:1.6;margin-top:6px">Investigás tu industria, la enseñás al grupo y conducís un ensayo de laboratorio.</p></div>
+        </div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="ct" style="margin-bottom:16px">Etapas del proyecto</div>
+          <div class="etr"><div class="etl"><div class="etc" style="background:var(--pp-bg);color:var(--pp);border-color:var(--pp-bdr)">1</div><div class="etw">≈ 3 sem.</div></div><div class="etr-r"><div class="etn">Investigación de la industria</div><div class="etd">Investigás en profundidad y la enseñás al grupo. Incluye POES o Protocolos de proceso.</div><div class="trow"><span class="tag" style="background:var(--pp-bg);color:var(--pp)">Estructura</span><span class="tag" style="background:var(--pp-bg);color:var(--pp)">Proceso productivo</span><span class="tag" style="background:var(--pp-bg);color:var(--pp)">POES / Protocolos</span></div></div></div>
+          <div class="etr"><div class="etl"><div class="etc" style="background:var(--te-bg);color:var(--te);border-color:var(--te-bdr)">2</div><div class="etw">Desarrollo</div></div><div class="etr-r"><div class="etn">Emisiones y ensayos</div><div class="etd">Caracterizás gases, efluentes y residuos. Diseñás y conducís un ensayo de laboratorio.</div><div class="trow"><span class="tag" style="background:var(--te-bg);color:var(--te)">Gases</span><span class="tag" style="background:var(--te-bg);color:var(--te)">Efluentes</span><span class="tag" style="background:var(--te-bg);color:var(--te)">Residuos</span></div></div></div>
+          <div class="etr"><div class="etl"><div class="etc" style="background:var(--sh-bg);color:var(--sh);border-color:var(--sh-bdr)">3</div><div class="etw">Cierre</div></div><div class="etr-r"><div class="etn">Integración grupal</div><div class="etd">Las 4 industrias se comparan. Banco grupal de POES y Protocolos, propuestas de mejora ambiental.</div><div class="trow"><span class="tag" style="background:var(--sh-bg);color:var(--sh)">Comparación</span><span class="tag" style="background:var(--sh-bg);color:var(--sh)">Banco grupal</span></div></div></div>
+        </div>
+        <div class="card" style="background:var(--gold-bg);border-color:var(--gold-bdr)"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--gold);margin-bottom:8px">Normativa clave para tu industria</div><div id="al-norm" style="font-size:13px;color:var(--ink2);line-height:2.2"></div></div>
+      </div>
+      <div id="at-recursos" class="atc" style="display:none"><div class="sh2"><div class="st">Recursos de tu industria</div></div><div id="al-rec"><div class="empty"><div class="eic">📚</div><div class="etxt">Las profes todavía no cargaron recursos.</div></div></div></div>
+      <div id="at-devs" class="atc" style="display:none"><div class="sh2"><div class="st">Devoluciones de Katy y Agus</div></div><div id="al-dev"><div class="empty"><div class="eic">💬</div><div class="etxt">Todavía no hay devoluciones.</div></div></div></div>
+      <div id="at-avances" class="atc" style="display:none">
+        <div class="sh2"><div class="st">Mis avances</div></div>
+        <div class="fc">
+          <div class="fct"><div class="fcd" id="al-avdot"></div>Registrar avance o hallazgo</div>
+          <div class="fg" style="margin-bottom:10px"><label class="fl">¿Qué encontraste o aprendiste?</label><textarea class="fta" id="av-txt" placeholder="Ej: Encontré que la industria textil usa enzimas celulasas..."></textarea></div>
+          <div class="fr fr2" style="margin-bottom:10px"><div class="fg"><label class="fl">Link o fuente (opcional)</label><input class="fi" id="av-lnk" placeholder="https://..."></div><div class="fg"><label class="fl">Etapa</label><select class="fsl" id="av-eta"><option>Etapa 1 – Investigación</option><option>Etapa 2A – Emisiones</option><option>Etapa 2B – Ensayo</option><option>Carril A – Laboratorio</option><option>General</option></select></div></div>
+          <button class="btn btn-p btn-sm" onclick="guardarAvance()">Guardar avance</button>
+        </div>
+        <div id="al-avs"><div class="empty"><div class="eic">✏️</div><div class="etxt">Todavía no registraste avances.</div></div></div>
+      </div>
+      <div id="at-mis-notas" class="atc" style="display:none"><div class="sh2"><div class="st">Mis calificaciones</div></div><div id="al-notas-v"></div></div>
+    </div>
+
+    <!-- PROTOCOLO -->
+    <div class="view" id="v-protocolo">
+      <div class="ph"><div class="ph-ey" style="color:var(--sh2)">Profes · Katy &amp; Agus</div><h1 class="ph-t">Protocolo del <em>año</em></h1><p class="ph-s">Estructura y etapas · 2026</p></div>
+      <div style="display:grid;grid-template-columns:1fr 268px;gap:14px;align-items:start">
+        <div>
+          <div class="card" style="margin-bottom:12px;border-top:3px solid var(--te)"><div style="margin-bottom:8px"><span class="pill" style="background:var(--te-bg);color:var(--te);border-color:var(--te-bdr)">Carril A</span></div><div class="ct" style="font-size:14px">Clases independientes · Tratamiento de Emisiones</div><p style="font-size:13px;color:var(--ink3);line-height:1.6;margin-top:6px">Ensayos guiados para construir habilidades progresivas: físico-químicos, microbiológicos, instrumental e interpretación.</p></div>
+          <div class="card" style="border-top:3px solid var(--sh)">
+            <div style="margin-bottom:12px"><span class="pill" style="background:var(--sh-bg);color:var(--sh);border-color:var(--sh-bdr)">Carril B</span></div>
+            <div class="etr"><div class="etl"><div class="etc" style="background:var(--pp-bg);color:var(--pp);border-color:var(--pp-bdr)">1</div><div class="etw">≈ 3 sem.</div></div><div class="etr-r"><div class="etn">Investigación · PPII</div><div class="etd">Cada alumno investiga su industria y la expone al grupo. POES para cárnica; Protocolos para textil, papel y minera.</div></div></div>
+            <div class="etr"><div class="etl"><div class="etc" style="background:var(--te-bg);color:var(--te);border-color:var(--te-bdr)">2</div><div class="etw">Desarrollo</div></div><div class="etr-r"><div class="etn">Emisiones y ensayos · Tratamiento de Emisiones</div><div class="etd">Caracterización de gases, efluentes y residuos. Diseño y conducción del ensayo de laboratorio.</div></div></div>
+            <div class="etr"><div class="etl"><div class="etc" style="background:var(--sh-bg);color:var(--sh);border-color:var(--sh-bdr)">3</div><div class="etw">Cierre</div></div><div class="etr-r"><div class="etn">Integración grupal · Cátedra compartida</div><div class="etd">Comparación de las 4 industrias. Banco grupal de POES. Propuestas de mejora. Reflexión metacognitiva.</div></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:12px"><div class="ct" style="font-size:14px;margin-bottom:12px">Industrias asignadas</div><div>${['Paula','Jere','Riki','Lolo'].map((n,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)"><div style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;background:var(--${n.toLowerCase()}-bg)">${['🧵','🥩','📄','⛏️'][i]}</div><div><div style="font-size:13px;font-weight:600">${n}</div><div style="font-size:11px;color:var(--ink3)">${['Textil','Cárnica','Papel','Minera'][i]}</div></div></div>`).join('')}</div></div>
+          <div class="card" style="background:var(--gold-bg);border-color:var(--gold-bdr)"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--gold);margin-bottom:8px">Normativa</div><div style="font-size:13px;color:var(--ink2);line-height:2.2">ISO 14001 · ISO 9001<br>IRAM · HACCP<br>POES (SENASA Res. 233/98)<br>Ley 24.585 · Protocolos</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLASES -->
+    <div class="view" id="v-clases">
+      <div class="ph"><div class="ph-ey" style="color:var(--te2)">Profes · Katy &amp; Agus</div><h1 class="ph-t">Estructura de <em>clase</em></h1><p class="ph-s">Miércoles · 160 minutos</p></div>
+      <div class="fc" style="border-top:3px solid var(--te)"><div class="fct"><div class="fcd" style="background:var(--te)"></div>Agregar tipo de clase</div><div class="fr fr2"><div class="fg"><label class="fl">Nombre</label><input class="fi" id="cl-n" placeholder="Nombre de la clase"></div><div class="fg"><label class="fl">Descripción</label><input class="fi" id="cl-d" placeholder="Para qué sirve"></div></div><div id="cl-bl" style="margin-bottom:8px"></div><div style="display:flex;gap:7px"><button class="btn btn-g btn-sm" onclick="addBF()">+ Bloque</button><button class="btn btn-p btn-sm" onclick="guardarClase()">Guardar</button></div></div>
+      <div id="clases-lista"></div>
+    </div>
+
+    <!-- CRONOGRAMA -->
+    <div class="view" id="v-cronograma">
+      <div class="ph"><div class="ph-ey" style="color:var(--gold)">Profes · Katy &amp; Agus</div><h1 class="ph-t">Cronograma</h1><p class="ph-s">Marzo a septiembre</p></div>
+      <div class="fc" style="border-top:3px solid var(--gold)"><div class="fct"><div class="fcd" style="background:var(--gold)"></div>Agregar clase</div><div class="fr fr3"><div class="fg"><label class="fl">Nº</label><input class="fi" id="cr-n" type="number" placeholder="1"></div><div class="fg"><label class="fl">Fecha</label><input class="fi" id="cr-f" type="date"></div><div class="fg"><label class="fl">Estado</label><select class="fsl" id="cr-e"><option value="planificada">Planificada</option><option value="realizada">Realizada</option><option value="pendiente">Pendiente</option></select></div></div><div class="fg" style="margin-bottom:12px"><label class="fl">Tema</label><input class="fi" id="cr-t" placeholder="Ej: Exposición Etapa 1 · Paula (Textil)"></div><button class="btn btn-p btn-sm" onclick="guardarCron()">Agregar</button></div>
+      <div id="cron-lista"><div class="empty"><div class="eic">📅</div><div class="etxt">No hay clases cargadas.</div></div></div>
+    </div>
+
+    <!-- NOTAS -->
+    <div class="view" id="v-notas">
+      <div class="ph"><div class="ph-ey" style="color:var(--pp2)">Profes · Katy &amp; Agus</div><h1 class="ph-t">Calificaciones</h1><p class="ph-s">Concepto · Actitud · Laboratorio · Dos períodos</p></div>
+      <div class="ptabs"><button class="ptab active" onclick="showP(1,this)">1er Período</button><button class="ptab" onclick="showP(2,this)">2do Período</button></div>
+      <div class="fc" style="border-top:3px solid var(--pp);margin-bottom:20px">
+        <div class="fct"><div class="fcd" style="background:var(--pp)"></div>Cargar nota — <span id="p-lbl" style="color:var(--pp);font-style:italic">1er Período</span></div>
+        <div class="fr fr4" style="margin-bottom:10px"><div class="fg"><label class="fl">Alumno</label><select class="fsl" id="nt-al"><option>Paula</option><option>Jere</option><option>Riki</option><option>Lolo</option></select></div><div class="fg"><label class="fl">Concepto (1–10)</label><input class="fi fin" id="nt-co" type="number" min="1" max="10" step="0.5" placeholder="—"></div><div class="fg"><label class="fl">Actitud (1–10)</label><input class="fi fin" id="nt-ac" type="number" min="1" max="10" step="0.5" placeholder="—"></div><div class="fg"><label class="fl">Laboratorio (1–10)</label><input class="fi fin" id="nt-lb" type="number" min="1" max="10" step="0.5" placeholder="—"></div></div>
+        <div class="fg" style="margin-bottom:12px"><label class="fl">Observaciones</label><input class="fi" id="nt-obs" placeholder="Opcional..."></div>
+        <button class="btn btn-p btn-sm" onclick="guardarNota()">Guardar nota</button>
+      </div>
+      <div class="card"><div id="notas-pl"></div></div>
+    </div>
+
+    <!-- DEVOLUCIONES -->
+    <div class="view" id="v-devoluciones">
+      <div class="ph"><div class="ph-ey" style="color:var(--gold)">Profes · Katy &amp; Agus</div><h1 class="ph-t">Devoluciones</h1><p class="ph-s">Registrá notas cualitativas</p></div>
+      <div class="fc" style="border-top:3px solid var(--gold)"><div class="fct"><div class="fcd" style="background:var(--gold)"></div>Nueva devolución</div><div class="fr fr3"><div class="fg"><label class="fl">Alumno</label><select class="fsl" id="dv-a"><option>Paula</option><option>Jere</option><option>Riki</option><option>Lolo</option></select></div><div class="fg"><label class="fl">Etapa</label><select class="fsl" id="dv-e"><option>Etapa 1 – Investigación</option><option>Etapa 2A – Emisiones</option><option>Etapa 2B – Ensayo</option><option>Etapa 3 – Cierre</option><option>Carril A – Laboratorio</option></select></div><div class="fg"><label class="fl">Profe</label><select class="fsl" id="dv-p"><option>Katy</option><option>Agus</option><option>Katy &amp; Agus</option></select></div></div><div class="fg" style="margin-bottom:10px"><label class="fl">Devolución</label><textarea class="fta" id="dv-t" placeholder="Escribí la devolución..."></textarea></div><div class="fg" style="margin-bottom:12px"><label class="fl">Progreso: <span id="dv-pv">10</span>%</label><input type="range" id="dv-pr" min="0" max="100" value="10" style="width:100%;accent-color:var(--gold)" oninput="document.getElementById('dv-pv').textContent=this.value"></div><div style="display:flex;gap:7px"><button class="btn btn-p btn-sm" onclick="guardarDev()">Guardar</button><button class="btn btn-g btn-sm" onclick="agregarLogro()">+ Logro</button></div></div>
+      <div id="dev-hist"><div class="empty"><div class="eic">💬</div><div class="etxt">No hay devoluciones.</div></div></div>
+    </div>
+
+    <!-- RECURSOS -->
+    <div class="view" id="v-recursos-admin">
+      <div class="ph"><div class="ph-ey" style="color:var(--paula2)">Profes · Katy &amp; Agus</div><h1 class="ph-t">Recursos y materiales</h1><p class="ph-s">Links, documentos y protocolos</p></div>
+      <div class="fc" style="border-top:3px solid var(--paula)"><div class="fct"><div class="fcd" style="background:var(--paula)"></div>Publicar recurso</div><div class="fr fr2"><div class="fg"><label class="fl">Título</label><input class="fi" id="rc-ti" placeholder="Nombre del recurso"></div><div class="fg"><label class="fl">Tipo</label><select class="fsl" id="rc-tp"><option value="link">🔗 Link web</option><option value="doc">📄 Documento</option><option value="norma">📋 Norma</option><option value="video">▶️ Video</option><option value="protocolo">🧪 Protocolo / POES</option></select></div></div><div class="fr fr2"><div class="fg"><label class="fl">URL</label><input class="fi" id="rc-url" placeholder="https://..."></div><div class="fg"><label class="fl">Para</label><select class="fsl" id="rc-in"><option value="todas">Todas las industrias</option><option value="Paula">Paula – Textil</option><option value="Jere">Jere – Cárnica</option><option value="Riki">Riki – Papel</option><option value="Lolo">Lolo – Minera</option></select></div></div><button class="btn btn-p btn-sm" onclick="guardarRec()">Publicar</button></div>
+      <div id="rec-adm"><div class="empty"><div class="eic">📚</div><div class="etxt">No hay recursos publicados.</div></div></div>
+    </div>
+
+    <!-- PROGRESO -->
+    <div class="view" id="v-progreso">
+      <div class="ph"><div class="ph-ey" style="color:var(--jere2)">Profes · Katy &amp; Agus</div><h1 class="ph-t">Progreso de alumnos</h1><p class="ph-s">Resumen general</p></div>
+      <div class="g2" id="prog-grid"></div>
+    </div>
+
+  </div></main>
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPA_URL = 'https://tgqvtvnnzydkymddbqgf.supabase.co';
+const SUPA_KEY = 'sb_publishable_Sgq5FNcF0Hhqkx_buZJwhA_ys3XOJJY';
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+async function dbGet(tabla){
+  const {data,error}=await sb.from(tabla).select('*').order('created_at',{ascending:false});
+  if(error){console.error(tabla,error);return[];}
+  return data||[];
+}
+async function dbInsert(tabla,obj){
+  const {data,error}=await sb.from(tabla).insert([obj]).select();
+  if(error){console.error(tabla,error);return null;}
+  return data;
+}
+async function dbDelete(tabla,id){
+  const {error}=await sb.from(tabla).delete().eq('id',id);
+  if(error)console.error(tabla,error);
+}
+async function dbUpsertNota(alumno,periodo,obj){
+  const {data:ex}=await sb.from('notas').select('id').eq('alumno',alumno).eq('periodo',periodo).single();
+  if(ex){await sb.from('notas').update(obj).eq('id',ex.id);}
+  else{await sb.from('notas').insert([{...obj,alumno,periodo}]);}
+}
+
+const AD={
+  Paula:{c:'paula',emoji:'🧵',ind:'Textil',norm:'IRAM 30900 · ISO 14001<br>Protocolo de manejo de colorantes<br>Protocolo de efluentes textiles<br>Ley 25.612'},
+  Jere:{c:'jere',emoji:'🥩',ind:'Cárnica',norm:'HACCP · POES (SENASA Res. 233/98)<br>ISO 22000 · IRAM 14202<br>Ley 22.375 · Res. SENASA 4238/11'},
+  Riki:{c:'riki',emoji:'📄',ind:'Papel',norm:'ISO 9001 · ISO 14001<br>Protocolo de blanqueo y refinado<br>Normativa OPDS'},
+  Lolo:{c:'lolo',emoji:'⛏️',ind:'Minera',norm:'Ley 24.585 · ISO 14001 · IRAM<br>Protocolo de sustancias peligrosas'},
+};
+let alAct='Paula',pAct=1;
+
+// ── AVANCES ──
+async function guardarAvance(){
+  const txt=document.getElementById('av-txt').value.trim();if(!txt)return;
+  const eta=document.getElementById('av-eta').value;
+  const lnk=document.getElementById('av-lnk').value.trim();
+  await dbInsert('avances',{alumno:alAct,etapa:eta,texto:txt,link:lnk,fecha:new Date().toLocaleDateString('es-AR')});
+  document.getElementById('av-txt').value='';document.getElementById('av-lnk').value='';
+  await renderAlAvs(alAct);await renderAV(alAct);
+}
+async function renderAlAvs(id){
+  const el=document.getElementById('al-avs');
+  const all=await dbGet('avances');
+  const data=all.filter(a=>a.alumno===id);
+  if(!data.length){el.innerHTML='<div class="empty"><div class="eic">✏️</div><div class="etxt">Todavía no registraste avances.</div></div>';return;}
+  el.innerHTML=data.map(a=>`<div class="avc"><div class="avh"><span class="badge" style="background:var(--bg2);color:var(--ink2)">${a.etapa||''}</span><span style="font-size:11px;color:var(--ink3)">${a.fecha||''}</span></div><div class="avd">${a.texto}</div>${a.link?`<div style="margin-top:5px;font-size:12px"><a href="${a.link}" target="_blank" style="color:var(--sh2)">🔗 ${a.link}</a></div>`:''}</div>`).join('');
+}
+
+// ── DEVOLUCIONES ──
+async function guardarDev(){
+  const a=document.getElementById('dv-a').value,e=document.getElementById('dv-e').value,
+        p=document.getElementById('dv-p').value,t=document.getElementById('dv-t').value.trim(),
+        pr=parseInt(document.getElementById('dv-pr').value);
+  if(!t){alert('Escribí la devolución.');return;}
+  await dbInsert('devoluciones',{alumno:a,etapa:e,profe:p,texto:t,progreso:pr,fecha:new Date().toLocaleDateString('es-AR')});
+  document.getElementById('dv-t').value='';
+  await renderDevHist();await renderProg();await renderAV(alAct);
+  alert('✓ Guardado para '+a);
+}
+async function agregarLogro(){
+  const a=document.getElementById('dv-a').value;
+  const v=prompt('Logro para '+a+':');if(!v)return;
+  await dbInsert('logros',{alumno:a,nombre:v});
+  await renderProg();await renderAV(alAct);
+}
+async function renderDevHist(){
+  const el=document.getElementById('dev-hist');
+  const all=await dbGet('devoluciones');
+  if(!all.length){el.innerHTML='<div class="empty"><div class="eic">💬</div><div class="etxt">No hay devoluciones.</div></div>';return;}
+  el.innerHTML=all.map(n=>{const al=AD[n.alumno];if(!al)return'';return`<div class="nota" style="border-left-color:var(--${al.c}2)"><div class="nota-h"><div style="display:flex;align-items:center;gap:7px"><span>${al.emoji}</span><span class="nota-e" style="color:var(--${al.c}2)">${n.alumno} · ${n.etapa}</span><span style="font-size:11px;color:var(--ink3)">${n.profe||''}</span></div><span class="nota-f">${n.fecha||''}</span></div><div class="nota-b">${n.texto}</div></div>`;}).join('');
+}
+async function renderAlDevs(id){
+  const el=document.getElementById('al-dev');
+  const all=await dbGet('devoluciones');
+  const data=all.filter(d=>d.alumno===id);
+  if(!data.length){el.innerHTML='<div class="empty"><div class="eic">💬</div><div class="etxt">Todavía no hay devoluciones.</div></div>';return;}
+  el.innerHTML=data.map(n=>`<div class="nota"><div class="nota-h"><span class="nota-e">${n.etapa} · ${n.profe||'Docente'}</span><span class="nota-f">${n.fecha||''}</span></div><div class="nota-b">${n.texto}</div></div>`).join('');
+}
+
+// ── NOTAS ──
+async function guardarNota(){
+  const al=document.getElementById('nt-al').value;
+  const co=document.getElementById('nt-co').value;const ac=document.getElementById('nt-ac').value;
+  const lb=document.getElementById('nt-lb').value;const ob=document.getElementById('nt-obs').value.trim();
+  await dbUpsertNota(al,pAct,{concepto:co?parseFloat(co):null,actitud:ac?parseFloat(ac):null,laboratorio:lb?parseFloat(lb):null,observaciones:ob,fecha:new Date().toLocaleDateString('es-AR')});
+  document.getElementById('nt-co').value='';document.getElementById('nt-ac').value='';document.getElementById('nt-lb').value='';document.getElementById('nt-obs').value='';
+  await renderNotas();await renderAlNotasV(alAct);alert('✓ Nota guardada para '+al);
+}
+async function renderNotas(){
+  const el=document.getElementById('notas-pl');if(!el)return;
+  const all=await dbGet('notas');
+  const rows=await Promise.all(['Paula','Jere','Riki','Lolo'].map(async id=>{
+    const al=AD[id];
+    const n=all.find(x=>x.alumno===id&&x.periodo===pAct)||{concepto:null,actitud:null,laboratorio:null,observaciones:''};
+    const vs=[n.concepto,n.actitud,n.laboratorio].filter(x=>x!==null);
+    const avg=vs.length?(vs.reduce((a,b)=>a+b,0)/vs.length).toFixed(1):null;
+    const col=avg?(parseFloat(avg)>=6?'var(--pp)':'var(--te)'):'var(--ink3)';
+    return`<tr><td><div style="display:flex;align-items:center;gap:10px"><div style="width:30px;height:30px;border-radius:50%;background:var(--${al.c}-bg);display:flex;align-items:center;justify-content:center;font-size:14px">${al.emoji}</div><div><div style="font-size:13px;font-weight:600">${id}</div><div style="font-size:11px;color:var(--ink3)">${al.ind}</div></div></div></td>${[n.concepto,n.actitud,n.laboratorio].map(v=>`<td><div class="nn" style="color:${v!==null?(parseFloat(v)>=6?'var(--pp)':'var(--te)'):'var(--ink3)'}">${v!==null?v:'—'}</div></td>`).join('')}<td><div style="display:flex;align-items:center;gap:8px"><div class="np" style="background:var(--${al.c}-bg);color:${col}">${avg||'—'}</div>${n.observaciones?`<span style="font-size:11px;color:var(--ink3)" title="${n.observaciones}">📝</span>`:''}</div></td></tr>`;
+  }));
+  el.innerHTML=`<table class="nt"><thead><tr><th>Alumno</th><th>Concepto</th><th>Actitud</th><th>Laboratorio</th><th>Promedio</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
+}
+async function renderAlNotasV(id){
+  const al=AD[id];const el=document.getElementById('al-notas-v');if(!el)return;
+  const all=await dbGet('notas');
+  let h='';
+  [1,2].forEach(p=>{
+    const n=all.find(x=>x.alumno===id&&x.periodo===p)||{concepto:null,actitud:null,laboratorio:null,observaciones:''};
+    const vs=[n.concepto,n.actitud,n.laboratorio].filter(x=>x!==null);
+    const avg=vs.length?(vs.reduce((a,b)=>a+b,0)/vs.length).toFixed(1):null;
+    const col=avg?(parseFloat(avg)>=6?'var(--pp)':'var(--te)'):'var(--ink3)';
+    h+=`<div style="margin-bottom:20px"><div style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">${p===1?'1er':'2do'} Período</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr) auto;gap:10px">
+      ${[['Concepto',n.concepto],['Actitud',n.actitud],['Laboratorio',n.laboratorio]].map(([l,v])=>`<div class="card" style="text-align:center;padding:16px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:4px">${l}</div><div class="nn" style="color:${v!==null?(parseFloat(v)>=6?'var(--pp)':'var(--te)'):'var(--ink3)'}">${v!==null?v:'—'}</div></div>`).join('')}
+      <div class="card" style="text-align:center;padding:16px;background:var(--${al.c}-bg);border-color:var(--${al.c}-bdr)"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--${al.c}2);margin-bottom:4px">Promedio</div><div class="nn" style="font-size:28px;color:${col}">${avg||'—'}</div></div>
+    </div>${n.observaciones?`<div style="font-size:12px;color:var(--ink3);margin-top:8px;font-style:italic">📝 ${n.observaciones}</div>`:''}</div>`;
+  });
+  el.innerHTML=h;
+}
+
+// ── RECURSOS ──
+async 
+</script>
+</body>
+</html>
