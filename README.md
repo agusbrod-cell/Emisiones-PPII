@@ -35,6 +35,6 @@ También es un espacio para que sigan explorando y practicando con GitHub como h
 
 ---
 
-**Ya están en la recta final. Confíen en lo que construyeron y anímense a seguir probando, equivocándose y aprendiendo — también en GitHub 😉**
+**Ya están en la recta final. Confíen en lo que construyeron y anímense a seguir probando, equivocándose y aprendiendo — también en GitHub 😉 (NO ME ODIEN)**
 
 **LOS QUEREMOS <3**
